@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>British Telly 96</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#171612;color:#f8ebcf;font:16px system-ui;padding:20px}.app{max-width:900px;margin:auto}h1{letter-spacing:3px}.tv{background:#39372f;border:12px solid #39372f;border-radius:25px;padding:10px;box-shadow:0 15px 45px #000}.screen{position:relative;aspect-ratio:16/9;background:#050505;display:grid;place-items:center;overflow:hidden;text-align:center}.screen iframe{width:100%;height:100%;border:0}.bug{position:absolute;top:12px;left:12px;background:#171717cc;padding:7px 12px;font-weight:bold;letter-spacing:2px}.snow{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#fff2 0 1px,transparent 1px 3px);display:none}.snow.on{display:block;animation:f .12s infinite alternate}@keyframes f{to{opacity:.25}}button{background:#343128;color:#fff1d2;border:1px solid #82765b;border-radius:7px;padding:12px;font-weight:bold;cursor:pointer}.controls,.channels{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.channels button{flex:1;min-width:100px}.active{background:#b63d2d}details{margin-top:20px;background:#29271f;padding:15px;border-radius:8px}summary{cursor:pointer;font-weight:bold}label{display:block;margin-top:12px}input{width:100%;padding:10px;margin-top:4px;background:#111;color:white;border:1px solid #82765b;border-radius:5px}small{color:#c9bfa8}
+</style>
+</head>
+<body><main class="app"><h1>BRITISH TELLY '96</h1><small>THE REMOTE IS YOURS · EST. 1996 (ISH)</small>
+<div class="tv"><div class="screen" id="screen"><div id="message"><h2 style="font-size:clamp(28px,6vw,60px)">NO SIGNAL</h2><p>Choose a channel and add your YouTube links below.</p></div><div class="bug" id="bug">BBC ONE</div><div class="snow" id="snow"></div></div></div>
+<div class="controls"><button onclick="change(-1)">◀ CH −</button><button onclick="change(1)">CH + ▶</button><button onclick="randomCh()">⤨ RANDOM</button><button onclick="autoSurf()" id="auto">▶ AUTO-SURF</button><button onclick="staticFx()">▧ STATIC</button></div>
+<div class="channels" id="channels"></div><p id="status">Ready to tune in.</p>
+<details><summary>⚙ TUNE YOUR CHANNELS</summary><p>Paste a YouTube video link or 11-character video ID. Your choices save on this device.</p><div id="editors"></div><button style="margin-top:14px" onclick="save()">SAVE CHANNELS</button></details>
+</main>
+<script>
+const names=['BBC ONE','BBC TWO','ITV','CHANNEL 4','CHANNEL 5','SKY ONE','MTV','TNT'];let current=0,ids=JSON.parse(localStorage.getItem('telly96')||'["","","","","","","",""]'),timer=null;
+function idOf(s){s=s.trim();let m=s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);return m?m[1]:(/^[\w-]{11}$/.test(s)?s:'')}
+function draw(){document.getElementById('channels').innerHTML=names.map((n,i)=>'<button class="'+(i===current?'active':'')+'" onclick="tune('+i+')">'+(i+1)+' · '+n+'</button>').join('');document.getElementById('editors').innerHTML=names.map((n,i)=>'<label>'+(i+1)+' · '+n+'<input id="url'+i+'" placeholder="YouTube URL or video ID" value="'+(ids[i]||'')+'"></label>').join('')}
+function tune(i){current=(i+8)%8;draw();let screen=document.getElementById('screen'),old=screen.querySelector('iframe');if(old)old.remove();document.getElementById('bug').textContent=names[current];document.getElementById('snow').classList.remove('on');let id=idOf(ids[current]||'');if(id){document.getElementById('message').style.display='none';let f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0';f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;screen.prepend(f);document.getElementById('status').textContent='Tuned to '+names[current]+'. If playback is blocked, press play in the video.'}else{document.getElementById('message').style.display='block';document.getElementById('message').innerHTML='<h2 style="font-size:clamp(28px,6vw,60px)">NO SIGNAL</h2><p>Add a YouTube link for '+names[current]+' in Tune Your Channels.</p>';document.getElementById('status').textContent='Tuned to '+names[current]+' · No video assigned.'}}
+function change(d){tune(current+d)}function randomCh(){tune((current+1+Math.floor(Math.random()*7))%8)}function autoSurf(){if(timer){clearInterval(timer);timer=null;document.getElementById('auto').textContent='▶ AUTO-SURF'}else{timer=setInterval(randomCh,12000);document.getElementById('auto').textContent='Ⅱ STOP SURFING';randomCh()}}function staticFx(){let s=document.getElementById('snow');s.classList.add('on');setTimeout(()=>s.classList.remove('on'),900)}function save(){ids=names.map((_,i)=>document.getElementById('url'+i).value.trim());localStorage.setItem('telly96',JSON.stringify(ids));tune(current)}
+draw();tune(0);
+</script></body></html>
